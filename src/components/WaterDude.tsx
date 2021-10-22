@@ -4,9 +4,14 @@ import glass from "../icons/glass.png";
 import bottle from "../icons/bottle.png";
 
 const waterIntakes = [300, 700];
+const leadingZero = (number: number) => (number < 10 ? `0${number}` : number);
 
 const getToday = () => {
-  return "2021-10-22";
+  const now = new Date("2021-11-22");
+  const year = now.getUTCFullYear();
+  const month = leadingZero(now.getUTCMonth() + 1);
+  const date = leadingZero(now.getUTCDate());
+  return `${year}-${month}-${date}`;
 };
 const getFill = (goal: number, count: number) => {
   const result = count / goal;
