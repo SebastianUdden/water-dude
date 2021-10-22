@@ -2,7 +2,12 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import glass from "../icons/glass.png";
 import bottle from "../icons/bottle.png";
+import WaterLevel from "./WaterLevel";
 
+const genderGoal = {
+  male: 3700,
+  female: 2700,
+};
 const waterIntakes = [300, 700];
 const leadingZero = (number: number) => (number < 10 ? `0${number}` : number);
 
@@ -13,11 +18,7 @@ const getToday = () => {
   const date = leadingZero(now.getUTCDate());
   return `${year}-${month}-${date}`;
 };
-const getFill = (goal: number, count: number) => {
-  const result = count / goal;
-  if (result > 1) return 100;
-  return result * 100;
-};
+
 const getWaterIntake = (goal: number, count: number) => {
   if (count > goal * 1.5) return "Excessive water intake!";
   return count < goal ? `${count}/${goal} ml` : "Completed";
@@ -29,7 +30,8 @@ const WaterDude = () => {
   const bgColor = "#ffffff";
   const [today] = useState(getToday());
   const [count, setCount] = useState(0);
-  const [goal] = useState(2000);
+  const [isMale, setIsMale] = useState(true);
+  const [goal, setGoal] = useState<number>(genderGoal.male);
 
   useEffect(() => {
     const waterDude = JSON.parse(localStorage.getItem("water-dude") || "{}");
@@ -48,16 +50,17 @@ const WaterDude = () => {
     // eslint-disable-next-line
   }, [count]);
 
-  const warning = count - goal;
+  useEffect(() => {
+    setGoal(isMale ? genderGoal.male : genderGoal.female);
+  }, [isMale]);
+
   const danger = getExcessiveWaterIntake(goal, count);
 
   return (
     <Wrapper bgColor={bgColor}>
-      <Title>Water Dude</Title>
-      <Bar>
-        <Fill fill={getFill(goal, count)} />
-        {warning > 0 && <Fill2 fill={getFill(goal, warning)} />}
-      </Bar>
+      <Button onClick={() => setIsMale(!isMale)}>Switch Gender</Button>
+      <Title>Water {isMale ? "Dude" : "Dame"}</Title>
+      <WaterLevel goal={goal} count={count} />
       <Count danger={danger}>{getWaterIntake(goal, count)}</Count>
       <Buttons>
         {waterIntakes.map((wi) => (
@@ -97,7 +100,7 @@ const Count = styled.p<{ danger: boolean }>`
 const Buttons = styled.div`
   display: flex;
 `;
-const WaterButton = styled.button<{ danger: boolean }>`
+const WaterButton = styled.button<{ danger?: boolean }>`
   background-color: #1aa7ec;
   color: white;
   border: none;
@@ -108,6 +111,7 @@ const WaterButton = styled.button<{ danger: boolean }>`
   border-radius: 6px;
   display: flex;
   align-items: center;
+  cursor: pointer;
   :hover,
   :active {
     opacity: 0.8;
@@ -127,32 +131,7 @@ const WaterButton = styled.button<{ danger: boolean }>`
       background-color: #ac1a0a;
   `}
 `;
-const Bar = styled.div`
-  height: 50vh;
-  width: 55vw;
-  border: 2px solid #1aa7ec;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 5px;
-  border-radius: 12px;
-  position: relative;
-`;
-const Fill = styled.div<{ fill: number }>`
-  height: ${(p) => `${p.fill}%`};
-  background-color: #1aa7ec;
-  width: 100%;
-  border-radius: 6px;
-  transition: height 500ms ease;
-`;
-const Fill2 = styled(Fill)`
-  position: absolute;
-  left: 5px;
-  max-height: 97%;
-  width: 95.5%;
-  background-color: #ac1a0a;
-  opacity: ${(p) => p.fill / 100};
-`;
+
 const Icon = styled.img<{ isBottle: boolean }>`
   filter: invert(1);
   margin-right: 5px;
@@ -164,6 +143,12 @@ const Icon = styled.img<{ isBottle: boolean }>`
     margin: -2px -5px;
     margin-left: -8px;
   `}
+`;
+const Button = styled(WaterButton)`
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  background-color: ;
 `;
 
 export default WaterDude;
