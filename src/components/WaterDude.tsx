@@ -12,7 +12,7 @@ const waterIntakes = [300, 700];
 const leadingZero = (number: number) => (number < 10 ? `0${number}` : number);
 
 const getToday = () => {
-  const now = new Date("2021-11-22");
+  const now = new Date();
   const year = now.getUTCFullYear();
   const month = leadingZero(now.getUTCMonth() + 1);
   const date = leadingZero(now.getUTCDate());
@@ -34,9 +34,19 @@ const WaterDude = () => {
   const [goal, setGoal] = useState<number>(genderGoal.male);
 
   useEffect(() => {
-    const waterDude = JSON.parse(localStorage.getItem("water-dude") || "{}");
-    if (!waterDude) return;
-    setCount(waterDude[today] || 0);
+    const oldWaterDude = JSON.parse(localStorage.getItem("water-dude") || "{}");
+    if (!oldWaterDude) return;
+    if (!oldWaterDude[today]) {
+      const waterDude = {
+        ...oldWaterDude,
+        [today]: count,
+      };
+      localStorage.setItem("water-dude", JSON.stringify(waterDude));
+      setCount(0);
+      return;
+    }
+    setCount(oldWaterDude[today]);
+    // eslint-disable-next-line
   }, [today]);
 
   useEffect(() => {
@@ -146,9 +156,10 @@ const Icon = styled.img<{ isBottle: boolean }>`
 `;
 const Button = styled(WaterButton)`
   position: absolute;
-  right: 5px;
-  top: 5px;
-  background-color: ;
+  right: 7px;
+  top: 7px;
+  padding: 8px;
+  font-size: 14px;
 `;
 
 export default WaterDude;
