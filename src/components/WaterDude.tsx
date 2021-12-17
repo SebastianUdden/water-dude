@@ -204,8 +204,7 @@ const Entries = styled.ul`
   height: 60vh;
 `;
 const Entry = styled.li<{ isSuccess?: boolean }>`
-  color: #dd4411;
-  text-shadow: 0.3px 0.3px black;
+  color: #ff2200;
   border-bottom: 1px solid white;
   padding: 5px;
   ${(p) =>
