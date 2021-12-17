@@ -21,7 +21,7 @@ const getToday = () => {
 
 const getWaterIntake = (goal: number, count: number) => {
   if (count > goal * 1.5) return "Excessive water intake!";
-  return count < goal ? `${count}/${goal} ml` : "Completed";
+  return count >= goal ? "Completed" : `${count}/${goal} ml`;
 };
 const getExcessiveWaterIntake = (goal: number, count: number) =>
   count > goal * 1.5;
@@ -81,7 +81,7 @@ const WaterDude = () => {
             {history.map((h: any) => (
               <Entry
                 isSuccess={
-                  h[1] > (isMale ? genderGoal.male : genderGoal.female)
+                  h[1] >= (isMale ? genderGoal.male : genderGoal.female)
                 }
               >
                 {h[0]}: <strong>{h[1]}</strong>
