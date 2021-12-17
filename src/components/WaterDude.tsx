@@ -28,7 +28,7 @@ const getExcessiveWaterIntake = (goal: number, count: number) =>
 
 const WaterDude = () => {
   const bgColor = "#ffffff";
-  const [showHistory, setShowHistory] = useState(true);
+  const [showHistory, setShowHistory] = useState(false);
   const [history, setHistory] = useState<any>([]);
   const [today] = useState(getToday());
   const [count, setCount] = useState(0);
