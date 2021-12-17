@@ -28,6 +28,8 @@ const getExcessiveWaterIntake = (goal: number, count: number) =>
 
 const WaterDude = () => {
   const bgColor = "#ffffff";
+  const [showHistory, setShowHistory] = useState(true);
+  const [history, setHistory] = useState<any>([]);
   const [today] = useState(getToday());
   const [count, setCount] = useState(0);
   const [isMale, setIsMale] = useState(true);
@@ -50,8 +52,9 @@ const WaterDude = () => {
   }, [today]);
 
   useEffect(() => {
-    if (count === 0) return;
     const oldWaterDude = JSON.parse(localStorage.getItem("water-dude") || "{}");
+    setHistory(Object.entries(oldWaterDude).reverse());
+    if (count === 0) return;
     const waterDude = {
       ...oldWaterDude,
       [today]: count,
@@ -68,22 +71,46 @@ const WaterDude = () => {
 
   return (
     <Wrapper bgColor={bgColor}>
-      <Button onClick={() => setIsMale(!isMale)}>Switch Gender</Button>
-      <Title>Water {isMale ? "Dude" : "Dame"}</Title>
-      <WaterLevel goal={goal} count={count} />
-      <Count danger={danger}>{getWaterIntake(goal, count)}</Count>
-      <Buttons>
-        {waterIntakes.map((wi) => (
-          <WaterButton
-            disabled={count - goal > goal}
-            danger={danger}
-            onClick={() => setCount(count + wi)}
-          >
-            <Icon isBottle={wi === 700} src={wi === 300 ? glass : bottle} />
-            {wi}ml
-          </WaterButton>
-        ))}
-      </Buttons>
+      <Button onClick={() => setShowHistory(!showHistory)}>
+        {showHistory ? "Hide" : "View"} history
+      </Button>
+      {showHistory ? (
+        <History>
+          <Title>Consumption history</Title>
+          <Entries>
+            {history.map((h: any) => (
+              <Entry
+                isSuccess={
+                  h[1] > (isMale ? genderGoal.male : genderGoal.female)
+                }
+              >
+                {h[0]}: <strong>{h[1]}</strong>
+              </Entry>
+            ))}
+          </Entries>
+        </History>
+      ) : (
+        <>
+          <Button left onClick={() => setIsMale(!isMale)}>
+            Switch Gender
+          </Button>
+          <h1>Water {isMale ? "Dude" : "Dame"}</h1>
+          <WaterLevel goal={goal} count={count} />
+          <Count danger={danger}>{getWaterIntake(goal, count)}</Count>
+          <Buttons>
+            {waterIntakes.map((wi) => (
+              <WaterButton
+                disabled={count - goal > goal}
+                danger={danger}
+                onClick={() => setCount(count + wi)}
+              >
+                <Icon isBottle={wi === 700} src={wi === 300 ? glass : bottle} />
+                {wi}ml
+              </WaterButton>
+            ))}
+          </Buttons>
+        </>
+      )}
     </Wrapper>
   );
 };
@@ -98,7 +125,6 @@ const Wrapper = styled.div<{ bgColor: string }>`
   justify-content: center;
   font-size: calc(10px + 2vmin);
 `;
-const Title = styled.h1``;
 const Count = styled.p<{ danger: boolean }>`
   font-weight: 800;
   ${(p) =>
@@ -110,7 +136,7 @@ const Count = styled.p<{ danger: boolean }>`
 const Buttons = styled.div`
   display: flex;
 `;
-const WaterButton = styled.button<{ danger?: boolean }>`
+const WaterButton = styled.button<{ danger?: boolean; left?: boolean }>`
   background-color: #1aa7ec;
   color: white;
   border: none;
@@ -156,10 +182,51 @@ const Icon = styled.img<{ isBottle: boolean }>`
 `;
 const Button = styled(WaterButton)`
   position: absolute;
-  right: 7px;
   top: 7px;
   padding: 8px;
   font-size: 14px;
+  ${(p) =>
+    p.left
+      ? `
+        left: 7px;
+      `
+      : `
+        right: 7px;
+  `}
+`;
+const Entries = styled.ul`
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  height: auto;
+  overflow-y: scroll;
+  height: 60vh;
+`;
+const Entry = styled.li<{ isSuccess?: boolean }>`
+  color: #dd4411;
+  text-shadow: 0.3px 0.3px black;
+  border-bottom: 1px solid white;
+  padding: 5px;
+  ${(p) =>
+    p.isSuccess &&
+    `
+    color: white;
+`}
+`;
+const History = styled.div`
+  max-height: 70vh;
+  height: 100%;
+  margin: 30px 70px 0;
+  text-align: left;
+  background-color: #1aa7ec;
+  color: #fff;
+  padding: 20px 20px 50px;
+  border-radius: 12px;
+  overflow: hidden;
+`;
+const Title = styled.h1`
+  margin: 0 0 20px;
 `;
 
 export default WaterDude;
